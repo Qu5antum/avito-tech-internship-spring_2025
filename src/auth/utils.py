@@ -1,12 +1,8 @@
-from passlib.context import CryptContext
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+from passlib.hash import argon2
 
+def hash_password(password: str):
+    hashed_password = argon2.hash(password)
+    return hashed_password
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Проверка пароля в открытом виде на соответствие хешированному паролю."""
-    return pwd_context.verify(plain_password, hashed_password)
-
-
-def get_password_hash(password: str) -> str:
-    """Генерация хеш пароля из открытого пароля"""
-    return pwd_context.hash(password)
+def check_hashes(password_in: str, hashed_password):
+    return argon2.verify(password_in, hashed_password)  

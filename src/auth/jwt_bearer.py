@@ -12,8 +12,8 @@ from src.api.schemas.token_schema import TokenPayload
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/user/login")
 
 class CurrentUser:
-    def __init__(self, jwt_handler: JWTHandler):
-        self.jwt_handler = jwt_handler
+    def __init__(self):
+        self.jwt_handler = JWTHandler()
 
     def __call__(self, token: str = Depends(oauth2_scheme)) -> TokenPayload:
         try:
