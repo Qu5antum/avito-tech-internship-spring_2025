@@ -11,3 +11,9 @@ class UnauthorizedException(BaseAppException):
     """Вызывается, когда пользователь не авторизован."""
     def __init__(self, detail: str):
         super().__init__(detail, status_code=401)
+
+
+class UserAlreadyExists(BaseAppException):
+    """Вызывается если пользователь уже есть"""
+    def __init__(self, detail: str):
+        super().__init__(detail, status_code=400)

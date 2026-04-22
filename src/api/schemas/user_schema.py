@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from uuid import UUID
 import datetime
+from database.models import UserRole
 
 
 class UserBase(BaseModel):
@@ -9,7 +10,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
-    role: str
+    role: UserRole
 
 
 class UserOut(UserBase):

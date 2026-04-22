@@ -1,13 +1,17 @@
 from typing import Any
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.exc import IntegrityError
+from jose import JWTError
 from datetime import timedelta
 
 from database.db import AsyncSession
 from repositories.user_repository import UserRepository
-from exception_handlers.user_exceptions import UserNotFoundException, UnauthorizedException
-from auth.utils import check_hashes
+from exception_handlers.user_exceptions import UserNotFoundException, UnauthorizedException, UserAlreadyExists
+from auth.utils import verify_password, hash_password
 from core.config import settings
 from auth.jwt_handler import JWTHandler
+from api.schemas.user_schema import UserCreate
+
 
 class AuthService:
     def __init__(self, session: AsyncSession, jwt_handler: JWTHandler):
@@ -22,17 +26,16 @@ class AuthService:
         if not user:
             raise UserNotFoundException("User not found.")
  
-        # ДОБАВИТЬ is_active В МОДЕЛЬ USER!!!!!!!!!!
         if not user.is_active:
             raise UnauthorizedException("User is unauthorized.")
         
-        if not check_hashes(credents.password, user.password):
+        if not verify_password(credents.password, user.password):
             raise UnauthorizedException("Invalid credentials.")
         
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
         access_token = self.jwt_handler.create_access_token(
-            subject=user.email,
+            subject=str(user.id),
             role=user.role,
             expires_delta=access_token_expires
         )
@@ -46,36 +49,64 @@ class AuthService:
         }
     
     async def refresh_token(self, refresh_token: str) -> dict:
-        payload = self.jwt_handler.decode_token(refresh_token)
+        try:
+            payload = self.jwt_handler.decode_token(refresh_token)
 
-        if payload.get("token_type") != "refresh":
-            raise UnauthorizedException("Invalid token type.")
+            if payload.get("token_type") != "refresh":
+                raise UnauthorizedException("Invalid token type.")
+            
+            user_email = payload.get("sub")
+
+            user = await self.user_repository.get_user_with_email(user_email)
+
+            if not user:
+                raise UserNotFoundException("User not found.")
+            
+            if not user.is_active:
+                raise UnauthorizedException("User is inactive.")
+            
+
+            access_token_expires = timedelta(
+                minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+            )
+
+            access_token = self.jwt_handler.create_access_token(
+                subject=str(user.id),
+                role=user.role,
+                expires_delta=access_token_expires
+            )
+
+            return {
+                "access_token": access_token,
+                "token_type": "bearer"
+            }
+        except JWTError:
+            raise UnauthorizedException("Token expired.")
+    
+    async def add_new_user(self, user: UserCreate) -> dict:
         
-        user_email = payload.get("sub")
+        existing_user = await self.user_repository.get_user_with_email(email=user.email)
 
-        user = await self.user_repository.get_user_with_email(user_email)
-
-        if not user:
-            raise UserNotFoundException("User not found.")
+        if existing_user:
+            raise UserAlreadyExists("Пользователь уже существует.")
         
-        if not user.is_active:
-            raise UnauthorizedException("User is inactive.")
+        hashed_password = hash_password(user.password)
+        
+        try:
+            new_user = await self.user_repository.create(
+                email=user.email,
+                password=hashed_password,
+                role=user.role
+            )
+        except IntegrityError:
+            raise UserAlreadyExists("Пользователь уже существует.")
+        
+        return {"detail": "Пользователь успешно создан."}
+
         
 
-        access_token_expires = timedelta(
-            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-        )
-
-        access_token = self.jwt_handler.create_access_token(
-            subject=user.email,
-            role=user.role,
-            expires_delta=access_token_expires
-        )
-
-        return {
-            "access_token": access_token,
-            "token_type": "bearer"
-        }
+        
+        
 
        
 

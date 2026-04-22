@@ -42,6 +42,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(nullable=False, unique=True)
     password: Mapped[str] = mapped_column(nullable=False)
     role: Mapped[UserRole] = mapped_column(default=UserRole.EMPLOYEE)
+    is_active: Mapped[bool] = mapped_column(default=True)
 
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), 

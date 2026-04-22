@@ -25,5 +25,8 @@ class CurrentUser:
 
             return token_data
 
-        except (JWTError, ValidationError):
-            raise ValidationException("Could not validate credentials.")
+        except JWTError:
+            raise UnauthorizedException("Invalid or expired token.")
+
+        except ValidationError:
+            raise UnauthorizedException("Invalid token structure.")
