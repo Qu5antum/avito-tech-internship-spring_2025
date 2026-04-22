@@ -1,4 +1,4 @@
-from database.models import UserRole
+from src.database.models import UserRole
 
 from pydantic import BaseModel
 from typing import Optional

@@ -4,13 +4,13 @@ from sqlalchemy.exc import IntegrityError
 from jose import JWTError
 from datetime import timedelta
 
-from database.db import AsyncSession
-from repositories.user_repository import UserRepository
-from exception_handlers.user_exceptions import UserNotFoundException, UnauthorizedException, UserAlreadyExists
-from auth.utils import verify_password, hash_password
-from core.config import settings
-from auth.jwt_handler import JWTHandler
-from api.schemas.user_schema import UserCreate
+from src.database.db import AsyncSession
+from src.repositories.user_repository import UserRepository
+from src.exception_handlers.user_exceptions import UserNotFoundException, UnauthorizedException, UserAlreadyExists
+from src.auth.utils import verify_password, hash_password
+from src.core.config import settings
+from src.auth.jwt_handler import JWTHandler
+from src.api.schemas.user_schema import UserCreate
 
 
 class AuthService:

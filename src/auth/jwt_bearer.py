@@ -5,8 +5,8 @@ from pydantic import ValidationError
 
 from .jwt_handler import JWTHandler
 from src.api.schemas.token_schema import TokenPayload
-from exception_handlers.user_exceptions import UnauthorizedException
-from exception_handlers.validation_exeption import ValidationException
+from src.exception_handlers.user_exceptions import UnauthorizedException
+from src.exception_handlers.validation_exeption import ValidationException
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/user/login")
@@ -28,5 +28,5 @@ class CurrentUser:
         except JWTError:
             raise UnauthorizedException("Invalid or expired token.")
 
-        except ValidationError:
+        except ValidationException:
             raise UnauthorizedException("Invalid token structure.")

@@ -1,7 +1,8 @@
 from pydantic import BaseModel, EmailStr
 from uuid import UUID
 import datetime
-from database.models import UserRole
+
+from src.database.models import UserRole
 
 
 class UserBase(BaseModel):

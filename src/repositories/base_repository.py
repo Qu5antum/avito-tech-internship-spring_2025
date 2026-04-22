@@ -15,10 +15,13 @@ class BaseRepository(AbstractRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create(self, data: dict) -> None:
-        new_object = self.model(**data)  
+    async def create(self, **kwargs):
+        new_object = self.model(**kwargs)  
         self.session.add(new_object)
         await self.session.commit()
+        await self.session.refresh(new_object)
+
+        return new_object   
         
 
     

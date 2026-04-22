@@ -1,10 +1,44 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, Body
+from fastapi.security import OAuth2PasswordRequestForm
 
+
+from src.database.db import AsyncSession, get_session
+from src.services.auth_service import AuthService
+from src.api.schemas.user_schema import UserCreate
+from src.auth.jwt_handler import JWTHandler
 
 
 user_router = APIRouter(
-    prefix="api/user/",
+    prefix="/api/user",
     tags=["users"]
 )
+
+
+async def get_auth_service(session: AsyncSession = Depends(get_session)):
+    return AuthService(session=session, jwt_handler=JWTHandler())
+
+
+@user_router.post("/register", status_code=201)
+async def register(
+    user: UserCreate = Body(),
+    auth_service: AuthService = Depends(get_auth_service),
+):
+    return await auth_service.add_new_user(user=user)
+
+
+@user_router.post("/login", status_code=201)
+async def login(
+    user: OAuth2PasswordRequestForm = Depends(),
+    auth_service: AuthService = Depends(get_auth_service)
+):
+    return await auth_service.auth_user(credents=user)
+    
+
+@user_router.post("/refresh", status_code=201)
+async def refresh(
+    token: str,
+    auth_service: AuthService = Depends(get_auth_service)
+):
+    return await auth_service.refresh_token(refresh_token=token)
 
 
