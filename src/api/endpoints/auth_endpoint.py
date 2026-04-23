@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from src.database.db import AsyncSession, get_session
 from src.services.auth_service import AuthService
-from src.api.schemas.user_schema import UserCreate
+from src.api.schemas.user_schema import UserCreate, DummyLoginRequest
 from src.auth.jwt_handler import JWTHandler
 
 
@@ -15,7 +15,20 @@ user_router = APIRouter(
 
 
 async def get_auth_service(session: AsyncSession = Depends(get_session)):
-    return AuthService(session=session, jwt_handler=JWTHandler())
+    return AuthService(session=session, jwt_handler=JWTHandler)
+
+
+@user_router.post("/dummyLogin", status_code=201)
+async def dummy_login(data: DummyLoginRequest):
+    token = JWTHandler.create_access_token(
+        subject="dummy_user",
+        role=data.role
+    )
+
+    return {
+        "access_token": token,
+        "token_type": "bearer"
+    }
 
 
 @user_router.post("/register", status_code=201)

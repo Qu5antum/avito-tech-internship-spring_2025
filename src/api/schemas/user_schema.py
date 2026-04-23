@@ -4,6 +4,9 @@ import datetime
 
 from src.database.models import UserRole
 
+class DummyLoginRequest(BaseModel):
+    role: UserRole
+
 
 class UserBase(BaseModel):
     email: EmailStr
