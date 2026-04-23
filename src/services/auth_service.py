@@ -16,11 +16,11 @@ from src.api.schemas.user_schema import UserCreate
 class AuthService:
     def __init__(self, session: AsyncSession, jwt_handler: JWTHandler):
         self.session = session
-        self.user_repository = UserRepository(session=session)
+        self.user_repo = UserRepository(session=session)
         self.jwt_handler = jwt_handler
 
     async def auth_user(self, credents: OAuth2PasswordRequestForm) -> dict:
-        user = await self.user_repository.get_user_with_email(email=credents.username)
+        user = await self.user_repo.get_user_with_email(email=credents.username)
 
 
         if not user:
@@ -57,7 +57,7 @@ class AuthService:
             
             user_email = payload.get("sub")
 
-            user = await self.user_repository.get_user_with_email(user_email)
+            user = await self.user_repo.get_user_with_email(user_email)
 
             if not user:
                 raise UserNotFoundException("User not found.")
@@ -85,7 +85,7 @@ class AuthService:
     
     async def add_new_user(self, user: UserCreate) -> dict:
         
-        existing_user = await self.user_repository.get_user_with_email(email=user.email)
+        existing_user = await self.user_repo.get_user_with_email(email=user.email)
 
         if existing_user:
             raise UserAlreadyExists("Пользователь уже существует.")
@@ -93,7 +93,7 @@ class AuthService:
         hashed_password = hash_password(user.password)
         
         try:
-            new_user = await self.user_repository.create(
+            new_user = await self.user_repo.create(
                 email=user.email,
                 password=hashed_password,
                 role=user.role

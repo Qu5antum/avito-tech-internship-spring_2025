@@ -20,8 +20,11 @@ class CurrentUser:
             payload = self.jwt_handler.decode_token(token)
             token_data = TokenPayload(**payload)
 
-            if token_data.token_type != "access":
-                raise UnauthorizedException("Invalid token type.")
+            if not token_data.sub:
+                raise UnauthorizedException("Invalid token: missing subject.")
+            
+            if not token_data.role:
+                raise UnauthorizedException("Invalid token: missing role.")
 
             return token_data
 
