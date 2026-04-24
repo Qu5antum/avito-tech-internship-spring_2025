@@ -11,6 +11,9 @@ class PVZService:
         self.session = session
         self.pvz_repo = PVZReposotory(session=session)
 
+    async def get_pvzs(self):
+        return await self.pvz_repo.get_all()
+
     async def create_pvz(self, data: PVZCreate) -> dict:
         try:
             new_pvz = await self.pvz_repo.create(

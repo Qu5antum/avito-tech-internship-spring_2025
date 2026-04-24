@@ -87,7 +87,7 @@ class Reception(Base):
 
     products: Mapped[list["Product"]] = relationship(back_populates='reception')
 
-    pvz_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('users.id'))
+    pvz_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('pvzs.id'))
 
 
 class Product(Base):

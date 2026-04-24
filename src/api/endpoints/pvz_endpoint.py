@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 
 from src.database.db import AsyncSession, get_session
-from src.database.models import User
-from src.api.dependencies.require_role_dependency import require_moderator
+from src.database.models import User, UserRole
+from src.api.dependencies.require_role_dependency import require_roles
 from src.services.pvz_service import PVZService
 from src.api.schemas.pvz_schema import PVZCreate
 
@@ -15,10 +15,18 @@ async def get_pvz_service(session : AsyncSession = Depends(get_session)):
     return PVZService(session=session)
 
 
-@pvz_router.post("/new_pvz", status_code=201)
+@pvz_router.get("/", status_code=200)
+async def get_pvzs(
+    user: User = Depends(require_roles(UserRole.MODERATOR)),
+    pvz_service: PVZService = Depends(get_pvz_service)
+):
+    return await pvz_service.get_pvzs()
+
+
+@pvz_router.post("/create", status_code=201)
 async def create_pvz(
     pvz: PVZCreate,
-    user: User = Depends(require_moderator),
+    user: User = Depends(require_roles(UserRole.MODERATOR)),
     pvz_service: PVZService = Depends(get_pvz_service)
 ):
     return await pvz_service.create_pvz(data=pvz)

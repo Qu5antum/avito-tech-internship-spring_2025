@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from sqlalchemy import select
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,6 +12,10 @@ class AbstractRepository(ABC):
     
     @abstractmethod
     async def get(self, id: UUID):
+        raise NotImplementedError
+    
+    @abstractmethod
+    async def get_all(self):
         raise NotImplementedError
 
 
@@ -29,9 +34,15 @@ class BaseRepository(AbstractRepository):
         return new_object
 
     async def get(self, id: UUID):
-        obj = self.session.get(self.model, id)
+        obj = await self.session.get(self.model, id)
 
         return obj
+    
+    async def get_all(self):
+        result = await self.session.execute(select(self.model))
+
+        return result.scalars().all()
+
 
 
            

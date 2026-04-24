@@ -4,7 +4,7 @@ from src.database.db import AsyncSession
 from src.repositories.reception_repository import ReceptionRepository
 from src.repositories.pvz_repository import PVZReposotory
 from src.api.schemas.reception_schema import PVZReceptionCreate
-from src.exception_handlers.pvz_exception import PVZNotFountException
+from src.exception_handlers.pvz_exception import PVZNotFoundException
 from src.exception_handlers.reception_exception import ReceptionStatusException
 from src.exception_handlers.db_exception import DatabaseException
 from src.database.models import Status
@@ -16,17 +16,16 @@ class PVZReceptionService:
         self.pvz_repo = PVZReposotory(session=session)
 
 
-    async def pvz_new_reception(self, reception: PVZReceptionCreate) -> dict:
+    async def create_reception(self, reception: PVZReceptionCreate) -> dict:
         existing_pvz = await self.pvz_repo.get(reception.pvz_id)
 
         if not existing_pvz:
-            raise PVZNotFountException("ПВЗ Не Найдено.")
+            raise PVZNotFoundException("ПВЗ Не Найдено.")
         
         reception_status = await self.reception_repo.get_reception_status(pvz_id=reception.pvz_id)
 
         if reception_status:
             raise ReceptionStatusException("Приемка товаров открыта у этого ПВЗ, вы не можете создать новый.")
-
         
         try:
             new_reception = await self.reception_repo.create(
