@@ -1,12 +1,17 @@
 from abc import ABC, abstractmethod
+from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class AbstractRepository(ABC):
     @abstractmethod
-    async def create(self, data: dict) -> None:
-        raise NotImplemented
+    async def create(self, data: dict):
+        raise NotImplementedError
+    
+    @abstractmethod
+    async def get(self, id: UUID):
+        raise NotImplementedError
 
 
 class BaseRepository(AbstractRepository):
@@ -21,7 +26,16 @@ class BaseRepository(AbstractRepository):
         await self.session.commit()
         await self.session.refresh(new_object)
 
-        return new_object   
+        return new_object
+
+    async def get(self, id: UUID):
+        obj = self.session.get(self.model, id)
+
+        return obj
+
+
+           
+    
         
 
     
