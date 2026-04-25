@@ -8,6 +8,7 @@ from src.core.config import settings
 from src.api.endpoints.auth_endpoint import user_router
 from src.api.endpoints.pvz_endpoint import pvz_router
 from src.api.endpoints.pvz_reception_endpoint import reception_router
+from src.api.endpoints.product_endpoint import product_router
 
 
 app = FastAPI(
@@ -37,6 +38,7 @@ app.add_middleware(
 app.include_router(user_router)
 app.include_router(pvz_router)
 app.include_router(reception_router)
+app.include_router(product_router)
 
 
 if __name__ == "__main__":

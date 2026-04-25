@@ -103,3 +103,9 @@ class Product(Base):
 
     reception_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('receptions.id'))
     reception: Mapped[Reception] = relationship(back_populates='products')
+
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), 
+        default=lambda: datetime.datetime.now(datetime.UTC), 
+        index=True
+    )
