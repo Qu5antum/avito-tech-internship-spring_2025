@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from uuid import UUID
 
 from src.services.pvz_reception_service import PVZReceptionService
 from src.database.db import AsyncSession, get_session
@@ -25,3 +26,10 @@ async def create_reception(
     return await reception_service.create_reception(reception=reception)
     
 
+@reception_router.put("/close_reception/pvz/{pvz_id}", status_code=201)
+async def close_reception(
+    pvz_id: UUID,
+    user: User = Depends(require_roles(UserRole.EMPLOYEE)),
+    reception_service: PVZReceptionService = Depends(get_reception_service)
+):
+    return await reception_service.close_reception(pvz_id=pvz_id)
