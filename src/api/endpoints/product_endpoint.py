@@ -18,7 +18,7 @@ async def get_product_service(session: AsyncSession = Depends(get_session)):
     return ProductService(session=session)
 
 
-@product_router.post("/create", status_code=201)
+@product_router.post("/create/pvz/{pvz_id}", status_code=201)
 async def create_product(
     pvz_id: UUID,
     product: ProductCreate,
@@ -26,3 +26,12 @@ async def create_product(
     product_service: ProductService = Depends(get_product_service)
 ):
     return await product_service.create_product(pvz_id=pvz_id, product=product)
+
+
+@product_router.delete("/create/pvz/{pvz_id}", status_code=200)
+async def delete_product(
+    pvz_id: UUID,
+    user: User = Depends(require_roles(UserRole.EMPLOYEE)),
+    product_service: ProductService = Depends(get_product_service)
+):
+    return await product_service.delete_product(pvz_id=pvz_id)

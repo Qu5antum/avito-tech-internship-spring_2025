@@ -9,6 +9,7 @@ from src.api.schemas.product_schema import ProductCreate
 from src.exception_handlers.pvz_exception import PVZNotFoundException
 from src.exception_handlers.reception_exception import ReceptionStatusException
 from src.exception_handlers.db_exception import DatabaseException
+from src.exception_handlers.product_exception import ProductNotFoundException
 
 
 class ProductService:
@@ -27,7 +28,7 @@ class ProductService:
         reception_status = await self.reception_repo.get_reception_status(pvz_id=pvz_id)
 
         if not reception_status:
-            raise ReceptionStatusException("Приемка товаров открыта у этого ПВЗ, вы не можете создать новый.")
+            raise ReceptionStatusException("Приемка товаров закрыта у этого ПВЗ, вы не можете добавить товар.")
         
         try:
             new_product = await self.product_repo.create(
@@ -42,4 +43,23 @@ class ProductService:
             "detail": "Продукт добавлен",
             "product": new_product
         }
+
+    async def delete_product(self, pvz_id: UUID) -> dict:
+        existing_pvz = await self.pvz_repo.get(id=pvz_id)
+
+        if not existing_pvz:
+            raise PVZNotFoundException("ПВЗ Не Найдено.")
+        
+        reception_status = await self.reception_repo.get_reception_status(pvz_id=pvz_id)
+
+        if not reception_status:
+            raise ReceptionStatusException("Приемка товаров закрыта у этого ПВЗ, вы не можете удалить товар.")
+        
+        product_to_delete = await self.product_repo.delete_with_LIFO(reception_id=reception_status.id)
+
+        if not product_to_delete:
+            raise ProductNotFoundException("Продукт не найден.")
+        
+        return {"detail": "Продукт успешно удален"}
+
         

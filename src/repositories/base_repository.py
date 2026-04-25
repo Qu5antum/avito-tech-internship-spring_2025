@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -42,11 +42,3 @@ class BaseRepository(AbstractRepository):
         result = await self.session.execute(select(self.model))
 
         return result.scalars().all()
-
-
-
-           
-    
-        
-
-    
