@@ -23,7 +23,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/pvz_db
+      DATABASE_URL: postgresql://postgres:shwisdtt345345@db:5432/pvz_db
     command: >
       uvicorn src.main:app
       --host 0.0.0.0

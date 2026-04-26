@@ -1,6 +1,7 @@
 from sqlalchemy.exc import IntegrityError
 from uuid import UUID
 from typing import Optional
+from datetime import datetime
 
 from src.database.db import AsyncSession
 from src.database.models import Reception
@@ -61,7 +62,27 @@ class PVZReceptionService:
         await self.session.refresh(reception)
 
         return reception
+    
+    async def reception_detail(
+        self, 
+        pvz_id: UUID,
+        from_date: datetime | None = None,
+        to_date: datetime | None = None
+    ):
+        existing_pvz = await self.pvz_repo.get(id=pvz_id)
+
+        if not existing_pvz:
+            raise PVZNotFoundException("ПВЗ Не Найдено.")
         
+        reception_with_products = await self.reception_repo.get_filtered_reception(
+            pvz_id=pvz_id,
+            from_date=from_date,
+            to_date=to_date
+        )
+
+        return reception_with_products
+        
+
 
 
 

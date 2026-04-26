@@ -5,4 +5,3 @@ from src.database.models import PVZ
 
 class PVZReposotory(BaseRepository):
     model = PVZ
-

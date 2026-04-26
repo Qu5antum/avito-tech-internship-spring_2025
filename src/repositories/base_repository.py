@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from sqlalchemy import select, delete
+from sqlalchemy import select
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
