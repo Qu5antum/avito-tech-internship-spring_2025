@@ -133,7 +133,7 @@ class AuthService:
         if existing_user:
             logger.warning(
                 "User already exists",
-                extra={"email", user.email}
+                extra={"email": user.email}
             )
             raise UserAlreadyExists("Пользователь уже существует.")
         
@@ -149,7 +149,7 @@ class AuthService:
             logger.error(
                 "Database insert error",
                 exc_info=True,
-                extra={"email", user.email}
+                extra={"email": user.email}
             )
             raise DatabaseException("DB ERROR!")
         

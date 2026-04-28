@@ -70,17 +70,30 @@ class PVZReceptionService:
         existing_pvz = await self.pvz_repo.get(id=pvz_id)
 
         if not existing_pvz:
+            logger.warning(
+                "PVZ Not Found",
+                extra={"pvz_id", str(reception.pvz_id)}
+            )
             raise PVZNotFoundException("ПВЗ Не Найдено.")
         
         reception = await self.reception_repo.get_reception_status(pvz_id=pvz_id)
 
         if not reception:
+            logger.warning(
+                "Reception in this PVZ is closed",
+                extra={"pvz_id", str(reception.pvz_id)}
+            )
             raise ReceptionStatusException("Приемка товаров уже закрыта у этого ПВЗ.")
         
         reception.status = Status.CLOSE
         await self.session.commit()
         await self.session.refresh(reception)
-
+        
+        logger.info(
+            "Status successfully updated",
+            extra={"status", reception.status}
+        )
+        
         return reception
     
     async def reception_detail(

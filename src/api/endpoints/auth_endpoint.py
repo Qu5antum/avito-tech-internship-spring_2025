@@ -23,7 +23,7 @@ async def dummy_login(data: DummyLoginRequest):
     token = JWTHandler.create_access_token(
         subject="dummy_user",
         role=data.role
-    )
+    )   
 
     return {
         "access_token": token,

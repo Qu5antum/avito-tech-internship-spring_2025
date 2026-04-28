@@ -14,6 +14,4 @@ class UserRepository(BaseRepository):
             select(self.model).where(self.model.email == email)
         )
 
-        existing_user = result.scalar_one_or_none()
-
-        return existing_user
+        return result.scalar_one_or_none()
