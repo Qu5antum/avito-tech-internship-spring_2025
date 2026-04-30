@@ -26,12 +26,16 @@ class BaseRepository(AbstractRepository):
         self.session = session
 
     async def create(self, **kwargs):
-        new_object = self.model(**kwargs)  
-        self.session.add(new_object)
-        await self.session.commit()
-        await self.session.refresh(new_object)
+        try:
+            new_object = self.model(**kwargs)  
+            self.session.add(new_object)
+            await self.session.commit()
+            await self.session.refresh(new_object)
 
-        return new_object
+            return new_object
+        except:
+            await self.session.rollback()
+            raise
 
     async def get(self, id: UUID):
         obj = await self.session.get(self.model, id)

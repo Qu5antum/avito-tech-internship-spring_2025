@@ -29,7 +29,7 @@ class PVZReceptionService:
         if not existing_pvz:
             logger.warning(
                 "PVZ Not Found",
-                extra={"pvz_id", str(reception.pvz_id)}
+                extra={"pvz_id": str(reception.pvz_id)}
             )
             raise PVZNotFoundException("ПВЗ Не Найдено.")
         
@@ -38,7 +38,7 @@ class PVZReceptionService:
         if reception_status:
             logger.warning(
                 "Reception in this PVZ is in_progress",
-                extra={"pvz_id", str(reception.pvz_id)}
+                extra={"pvz_id": str(reception.pvz_id)}
             )
             raise ReceptionStatusException("Приемка товаров открыта у этого ПВЗ, вы не можете создать новый.")
         
@@ -52,13 +52,13 @@ class PVZReceptionService:
             logger.error(
                 "Database insert error",
                 exc_info=True,
-                extra={"pvz_id", str(reception.pvz_id)}
+                extra={"pvz_id": str(reception.pvz_id)}
             )
             raise DatabaseException("Ошибка в базе.")
         
         logger.info(
             "Reception Successully inserted in db",
-            extra={"reception_status", reception.status}
+            extra={"reception_status": reception.status}
         )
 
         return {
@@ -72,7 +72,7 @@ class PVZReceptionService:
         if not existing_pvz:
             logger.warning(
                 "PVZ Not Found",
-                extra={"pvz_id", str(reception.pvz_id)}
+                extra={"pvz_id": str(reception.pvz_id)}
             )
             raise PVZNotFoundException("ПВЗ Не Найдено.")
         
@@ -81,7 +81,7 @@ class PVZReceptionService:
         if not reception:
             logger.warning(
                 "Reception in this PVZ is closed",
-                extra={"pvz_id", str(reception.pvz_id)}
+                extra={"pvz_id": str(reception.pvz_id)}
             )
             raise ReceptionStatusException("Приемка товаров уже закрыта у этого ПВЗ.")
         
@@ -91,7 +91,7 @@ class PVZReceptionService:
         
         logger.info(
             "Status successfully updated",
-            extra={"status", reception.status}
+            extra={"status": reception.status}
         )
         
         return reception
@@ -107,7 +107,7 @@ class PVZReceptionService:
         if not existing_pvz:
             logger.warning(
                 "PVZ Not Found",
-                extra={"pvz_id", str(pvz_id)}
+                extra={"pvz_id": str(pvz_id)}
             )
             raise PVZNotFoundException("ПВЗ Не Найдено.")
         
@@ -119,7 +119,7 @@ class PVZReceptionService:
 
         logger.info(
             "Successfully receptions info returned",
-            extra={"pvz_id", str(pvz_id)}
+            extra={"pvz_id": str(pvz_id)}
         )
 
         return reception_with_products

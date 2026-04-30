@@ -87,7 +87,7 @@ class AuthService:
             if not user:
                 logger.warning(
                     "User not found",
-                    extra={"email", user_email}
+                    extra={"email": user_email}
                 )
                 raise UserNotFoundException("User not found.")
             

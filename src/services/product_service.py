@@ -27,7 +27,7 @@ class ProductService:
         if not existing_pvz:
             logger.warning(
                 "PVZ Not Found",
-                extra={"pvz_id", str(pvz_id)}
+                extra={"pvz_id": str(pvz_id)}
             )
             raise PVZNotFoundException("ПВЗ Не Найдено.")
         
@@ -36,7 +36,7 @@ class ProductService:
         if not reception_status:
             logger.warning(
                 "Reception in this PVZ is closed",
-                extra={"pvz_id", str(pvz_id)}
+                extra={"pvz_id": str(pvz_id)}
             )
             raise ReceptionStatusException("Приемка товаров закрыта у этого ПВЗ, вы не можете добавить товар.")
         
@@ -50,13 +50,13 @@ class ProductService:
             logger.error(
                 "Database insert error",
                 exc_info=True,
-                extra={"pvz_id", str(pvz_id)}
+                extra={"pvz_id": str(pvz_id)}
             )
             raise DatabaseException("Ошибка в базе.")
         
         logger.info(
             "Database insert success",
-            extra={"product", product.type}
+            extra={"product": product.type}
         )
 
         return {
@@ -70,7 +70,7 @@ class ProductService:
         if not existing_pvz:
             logger.warning(
                 "PVZ Not Found",
-                extra={"pvz_id", str(pvz_id)}
+                extra={"pvz_id": str(pvz_id)}
             )
             raise PVZNotFoundException("ПВЗ Не Найдено.")
         
@@ -79,7 +79,7 @@ class ProductService:
         if not reception_status:
             logger.warning(
                 "Reception in this PVZ is closed",
-                extra={"pvz_id", str(pvz_id)}
+                extra={"pvz_id": str(pvz_id)}
             )
             raise ReceptionStatusException("Приемка товаров закрыта у этого ПВЗ, вы не можете удалить товар.")
         
@@ -88,13 +88,13 @@ class ProductService:
         if not product_to_delete:
             logger.warning(
                 "Product Not Found",
-                extra={"pvz_id", str(pvz_id)}
+                extra={"pvz_id": str(pvz_id)}
             )
             raise ProductNotFoundException("Продукт не найден.")
         
         logger.info(
             "Product is successfully deleted",
-            extra={"pvz_id", str(pvz_id)}
+            extra={"pvz_id": str(pvz_id)}
         )
         
         return {"detail": "Продукт успешно удален"}
