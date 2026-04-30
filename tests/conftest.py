@@ -7,6 +7,8 @@ from src.database.db import get_session
 from src.database.models import Base
 from src.main import app
 
+from tests.helpers import get_token, create_pvz, create_reception
+
 
 engine = create_async_engine(
     url="sqlite+aiosqlite:///./test.db"
@@ -31,3 +33,20 @@ async def setup_db():
 async def client(setup_db) -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         yield client
+
+
+@pytest_asyncio.fixture
+async def moderator_token(client):
+    return await get_token(client, "moderator")
+
+@pytest_asyncio.fixture
+async def employee_token(client):
+    return await get_token(client, "employee")
+
+@pytest_asyncio.fixture
+async def pvz_id(client, moderator_token):
+    return await create_pvz(client, moderator_token)
+
+@pytest_asyncio.fixture
+async def reception_id(client, employee_token, pvz_id):
+    return await create_reception(client, employee_token, pvz_id)

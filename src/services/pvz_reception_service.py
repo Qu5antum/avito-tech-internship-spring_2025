@@ -61,10 +61,7 @@ class PVZReceptionService:
             extra={"reception_status": reception.status}
         )
 
-        return {
-            "detail": "Приемка товаров успешно создано",
-            "reception": new_reception
-        }
+        return new_reception
     
     async def close_reception(self, pvz_id: UUID) -> Optional[Reception]:
         existing_pvz = await self.pvz_repo.get(id=pvz_id)

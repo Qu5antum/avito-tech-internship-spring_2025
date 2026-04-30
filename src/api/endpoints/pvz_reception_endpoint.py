@@ -4,7 +4,7 @@ from datetime import datetime
 
 from src.services.pvz_reception_service import PVZReceptionService
 from src.database.db import AsyncSession, get_session
-from src.api.schemas.reception_schema import PVZReceptionCreate
+from src.api.schemas.reception_schema import PVZReceptionCreate, PVZReceptionOut
 from src.database.models import User, UserRole
 from src.api.dependencies.require_role_dependency import require_roles
 
@@ -18,7 +18,7 @@ async def get_reception_service(session: AsyncSession = Depends(get_session)):
     return PVZReceptionService(session=session)
     
 
-@reception_router.post("/create", status_code=201)
+@reception_router.post("/create", response_model=PVZReceptionOut, status_code=201)
 async def create_reception(
     reception: PVZReceptionCreate,
     user: User = Depends(require_roles(UserRole.EMPLOYEE)),
@@ -27,7 +27,7 @@ async def create_reception(
     return await reception_service.create_reception(reception=reception)
     
 
-@reception_router.put("/close_reception/pvz/{pvz_id}", status_code=201)
+@reception_router.put("/close_reception/pvz/{pvz_id}", response_model=PVZReceptionOut, status_code=200)
 async def close_reception(
     pvz_id: UUID,
     user: User = Depends(require_roles(UserRole.EMPLOYEE)),

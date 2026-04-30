@@ -1,7 +1,6 @@
 from httpx import AsyncClient
 import pytest
 
-
 @pytest.mark.asyncio
 async def test_dummyLogin(client: AsyncClient):
     response = await client.post(
