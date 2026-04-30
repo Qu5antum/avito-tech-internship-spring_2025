@@ -59,10 +59,7 @@ class ProductService:
             extra={"product": product.type}
         )
 
-        return {
-            "detail": "Продукт добавлен",
-            "product": new_product
-        }
+        return new_product
 
     async def delete_product(self, pvz_id: UUID) -> dict:
         existing_pvz = await self.pvz_repo.get(id=pvz_id)
@@ -97,6 +94,9 @@ class ProductService:
             extra={"pvz_id": str(pvz_id)}
         )
         
-        return {"detail": "Продукт успешно удален"}
+        return {
+            "detail": "Продукт успешно удален",
+            "product": product_to_delete
+        }
 
         

@@ -7,7 +7,7 @@ from src.database.db import get_session
 from src.database.models import Base
 from src.main import app
 
-from tests.helpers import get_token, create_pvz, create_reception
+from tests.helpers import get_token, create_pvz, create_reception, create_product
 
 
 engine = create_async_engine(
@@ -50,3 +50,7 @@ async def pvz_id(client, moderator_token):
 @pytest_asyncio.fixture
 async def reception_id(client, employee_token, pvz_id):
     return await create_reception(client, employee_token, pvz_id)
+
+@pytest_asyncio.fixture
+async def product_id(client, employee_token, pvz_id, reception_id):
+    return await create_product(client, employee_token, pvz_id, reception_id)

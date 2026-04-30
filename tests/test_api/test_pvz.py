@@ -1,14 +1,9 @@
 from httpx import AsyncClient
 import pytest
-import uuid
-
-from tests.helpers import get_token, create_pvz
 
 
 @pytest.mark.asyncio
 async def test_create_pvz_succes(client: AsyncClient, moderator_token):
-    moderator_token = await get_token(client, "moderator")
-
     response = await client.post(
         "/api/pvz/create",
         json={"city": "Москва"},
@@ -23,9 +18,7 @@ async def test_create_pvz_succes(client: AsyncClient, moderator_token):
 
 
 @pytest.mark.asyncio
-async def test_create_pvz_forbidden(client: AsyncClient):
-    employee_token = await get_token(client, "employee")
-
+async def test_create_pvz_forbidden(client: AsyncClient, employee_token):
     response = await client.post(
         "/api/pvz/create",
         json={"city": "Москва"},
@@ -36,9 +29,7 @@ async def test_create_pvz_forbidden(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_create_pvz_invalid_city(client: AsyncClient):
-    moderator_token = await get_token(client, "moderator")
-
+async def test_create_pvz_invalid_city(client: AsyncClient, moderator_token):
     response = await client.post(
         "/api/pvz/create",
         json={"city": "Лондон"},

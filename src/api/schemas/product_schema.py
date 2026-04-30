@@ -9,7 +9,7 @@ class ProductCreate(BaseModel):
     type: ProductType
 
 
-class Productout(ProductCreate):
+class ProductOut(ProductCreate):
     id: UUID
     reception_id: UUID
     created_at: datetime

@@ -42,3 +42,17 @@ async def create_reception(client: AsyncClient, token: str, pvz_id: UUID):
     )
 
     return response.json()["id"]
+
+
+# create product
+async def create_product(client: AsyncClient, token: str, pvz_id: UUID, reception_id: UUID):
+    response = await client.post(
+        f"/api/product/create/pvz/{pvz_id}",
+        json={
+            "type": "электроника",
+            "reception_id": reception_id
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    return response.json()["id"]
