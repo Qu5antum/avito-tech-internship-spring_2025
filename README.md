@@ -1,155 +1,155 @@
-# 📦 Сервис управления ПВЗ и приёмкой товаров
+# 📦 PVZ Management and Product Reception Service
 
-## 📌 Описание
+## 📌 Description
 
-Сервис предназначен для управления пунктами выдачи заказов (ПВЗ) и процессом приёмки товаров.
+This service is designed to manage pickup points (PVZ) and the product reception process.
 
-В рамках системы реализована логика:
+The system implements the following functionality:
 
-* создания ПВЗ
-* управления приёмками товаров
-* добавления и удаления товаров
-* контроля доступа по ролям
-* отслеживания состояния приёмки
+* PVZ creation
+* Reception management
+* Product addition and deletion
+* Role-based access control
+* Reception state tracking
 
-Система позволяет получить полную информацию по ПВЗ и всем операциям приёмки товаров.
+The system provides full visibility into PVZ operations and all product reception activities.
 
 ---
 
-## 🧱 Архитектура
+## 🧱 Architecture
 
-Используется слоистая архитектура (Layered Architecture):
+The project follows a layered architecture:
 
 ```
 Client → API → Service → Repository → Database
 ```
 
-### Слои:
+### Layers:
 
 * **API (FastAPI)**
-  Обработка HTTP-запросов, валидация входных данных, dependency injection
+  Handles HTTP requests, input validation, and dependency injection
 
-* **Service layer**
-  Бизнес-логика, правила системы, обработка сценариев
+* **Service Layer**
+  Contains business logic, system rules, and use-case handling
 
-* **Repository layer**
-  Изоляция работы с БД (CRUD, запросы)
+* **Repository Layer**
+  Abstracts database access (CRUD operations, queries)
 
 * **Database**
-  PostgreSQL / SQLite (в тестах), SQLAlchemy ORM
+  PostgreSQL / SQLite (used for testing), SQLAlchemy ORM
 
 ---
 
-## ⚙️ Технологии
+## ⚙️ Technologies
 
 * FastAPI
 * SQLAlchemy (Async)
-* PostgreSQL / SQLite (для тестов)
+* PostgreSQL / SQLite (for tests)
 * Alembic
-* JWT (аутентификация)
-* Pytest + HTTPX (тестирование)
+* JWT (authentication)
+* Pytest + HTTPX (testing)
 
 ---
 
-## 🔐 Авторизация и роли
+## 🔐 Authentication and Roles
 
-Используется JWT-аутентификация.
+JWT-based authentication is used.
 
-### В токене содержится:
+### Token contains:
 
-* `sub` — ID пользователя
-* `role` — роль пользователя
+* `sub` — user ID
+* `role` — user role
 
-### Роли:
+### Roles:
 
 * **moderator**
 
-  * создание ПВЗ
+  * can create PVZ
 
 * **employee**
 
-  * создание приёмки
-  * добавление товаров
-  * удаление товаров
-  * закрытие приёмки
+  * can create receptions
+  * can add products
+  * can delete products
+  * can close receptions
 
 ---
 
-## 🧠 Бизнес-логика
+## 🧠 Business Logic
 
-### 📍 ПВЗ
+### 📍 PVZ
 
-* Создание доступно только пользователю с ролью `moderator`
-* Разрешённые города:
+* Creation is allowed only for users with the `moderator` role
+* Allowed cities:
 
-  * Москва
-  * Санкт-Петербург
-  * Казань
-* При попытке создать ПВЗ в другом городе — ошибка
+  * Moscow
+  * Saint Petersburg
+  * Kazan
+* Attempting to create a PVZ in any other city results in an error
 
 ---
 
-### 📦 Приёмка товаров
+### 📦 Product Reception
 
-* Создаётся пользователем с ролью `employee`
-* У одного ПВЗ может быть только одна активная приёмка
-* При попытке создать новую приёмку при наличии открытой — ошибка
+* Can be created by users with the `employee` role
+* Each PVZ can have only one active reception
+* Attempting to create a new reception while another is active results in an error
 
-**Статусы:**
+**Statuses:**
 
 * `IN_PROGRESS`
 * `CLOSE`
 
 ---
 
-### ➕ Добавление товаров
+### ➕ Adding Products
 
-* Доступно только `employee`
-* Товар привязывается:
+* Available only for `employee`
+* Product is linked to:
 
-  * к ПВЗ
-  * к последней открытой приёмке
-* Если нет открытой приёмки → ошибка
+  * a PVZ
+  * the latest active reception
+* If no active reception exists → error
 
 ---
 
-### ➖ Удаление товаров (LIFO)
+### ➖ Deleting Products (LIFO)
 
-* Только для незакрытой приёмки
-* Используется принцип:
+* Allowed only for active (not closed) receptions
+* Uses the principle:
 
   * **LIFO (Last In — First Out)**
-* Удаляется последний добавленный товар
-* После закрытия приёмки удаление невозможно
+* The last added product is removed
+* Deletion is not allowed after reception is closed
 
 ---
 
-### 🔒 Закрытие приёмки
+### 🔒 Closing a Reception
 
-* Только `employee`
-* Возможно только если есть активная приёмка
+* Available only for `employee`
+* Requires an active reception
 
-После закрытия:
+After closing:
 
-* нельзя добавлять товары
-* нельзя удалять товары
+* adding products is not allowed
+* deleting products is not allowed
 
 ---
 
-## ⚠️ Консистентность и защита от race condition
+## ⚠️ Consistency and Race Condition Protection
 
-Для предотвращения создания нескольких активных приёмок:
+To prevent multiple active receptions:
 
-* используется проверка на уровне сервиса
-* рекомендуется ограничение на уровне БД (unique constraint):
+* validation is implemented at the service layer
+* it is recommended to enforce a database-level constraint (unique constraint):
 
 ```
-один pvz_id → только один IN_PROGRESS
+one pvz_id → only one IN_PROGRESS
 ```
 
 ---
 
-## 📡 API эндпоинты
+## 📡 API Endpoints
 
 ### Auth
 
@@ -174,74 +174,76 @@ Client → API → Service → Repository → Database
 
 ---
 
-## 🧪 Тестирование
+## 🧪 Testing
 
-Используется:
+Used tools:
 
 * pytest
 * httpx.AsyncClient
-* отдельная тестовая БД (SQLite)
+* separate test database (SQLite)
 
-### Покрытие:
+### Coverage:
 
-* регистрация и авторизация
-* создание ПВЗ
-* проверка ролей (403)
-* создание приёмки
-* запрет второй приёмки
-* добавление товаров
-* удаление товаров (LIFO)
-* закрытие приёмки
+* registration and authentication
+* PVZ creation
+* role validation (403)
+* reception creation
+* prevention of duplicate receptions
+* product addition
+* product deletion (LIFO)
+* reception closing
 
 ---
 
-## 🗄️ Работа с БД
+## 🗄️ Database
 
 * ORM: SQLAlchemy (async)
-* Миграции: Alembic
+* Migrations: Alembic
 
 ---
 
-## 📜 Логирование
+## 📜 Logging
 
-Используется стандартный `logging`.
+Standard `logging` is used.
 
-Логируются:
+Logged events:
 
-* HTTP-запросы
-* ошибки
-* ключевые бизнес-события:
+* HTTP requests
+* errors
+* key business events:
 
-  * создание ПВЗ
-  * создание приёмки
-  * добавление товаров
+  * PVZ creation
+  * reception creation
+  * product addition
 
 ---
 
-## 🚀 Запуск проекта
+## 🚀 Running the Project
 
 ```bash
 git clone <repo>
-cd backend
 
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+source venv/bin/activate  # Windows: venv\\Scripts\\activate
 
 pip install -r requirements.txt
 
 uvicorn src.main:app --reload
 ```
-## Запуск с Docker
+
+## Running with Docker
+
 ```bash
 docker compose up --build
 ```
 
-## Остановка
+## Stop
+
 ```bash
 docker compose down -v
 ```
 
-## 🧪 Запуск тестов
+## 🧪 Running Tests
 
 ```bash
 pytest -vv
@@ -249,30 +251,30 @@ pytest -vv
 
 ---
 
-## 📌 Дополнительно
+## 📌 Additional Notes
 
-Проект реализует:
+The project implements:
 
-* строгую ролевую модель
-* изоляцию бизнес-логики
-* асинхронную работу с БД
-* тестируемую архитектуру
-
----
-
-## 📎 Ссылка на задание
-
-https://github.com/avito-tech/tech-internship/blob/main/Tech%20Internships/Backend/Backend-trainee-assignment-spring-2025/Backend-trainee-assignment-spring-2025.md
+* strict role-based access control
+* separation of business logic
+* asynchronous database interaction
+* testable architecture
 
 ---
 
-## 📊 Итог
+## 📎 Assignment Link
 
-Сервис покрывает ключевые требования:
+[https://github.com/avito-tech/tech-internship/blob/main/Tech%20Internships/Backend/Backend-trainee-assignment-spring-2025/Backend-trainee-assignment-spring-2025.md](https://github.com/avito-tech/tech-internship/blob/main/Tech%20Internships/Backend/Backend-trainee-assignment-spring-2025/Backend-trainee-assignment-spring-2025.md)
 
-* управление ПВЗ
-* контроль приёмки товаров
-* ограничения бизнес-логики
-* защита от неконсистентных состояний
-* логирование
-* тестирование API
+---
+
+## 📊 Summary
+
+The service covers core requirements:
+
+* PVZ management
+* product reception control
+* business logic constraints
+* protection against inconsistent states
+* logging
+* API testing
